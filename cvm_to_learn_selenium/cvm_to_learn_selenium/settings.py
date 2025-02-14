@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = "cvm_to_learn_selenium.spiders"
 #USER_AGENT = "cvm_to_learn_selenium (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
