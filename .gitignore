@@ -1,0 +1,43 @@
+# Arquivos Python compilados
+__pycache__/
+*.py[cod]
+*.so
+
+# Configurações de ambiente virtual
+venv/
+.env
+*.env
+Pipfile
+Pipfile.lock
+
+# Logs e arquivos temporários
+logs/
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+.DS_Store
+
+# Dados de cache do Scrapy
+.scrapy/
+#*.db
+#*.sqlite
+#*.json
+
+# Capturas de tela e arquivos temporários do Selenium
+screenshots/
+selenium-screenshots/
+*.png
+*.jpg
+*.webm
+
+# Configurações do IDE/editor
+.vscode/
+.idea/
+*.iml
+
+# Dependências instaladas via pip
+*.egg-info/
+dist/
+build/

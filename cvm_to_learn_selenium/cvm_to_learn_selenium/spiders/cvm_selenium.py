@@ -51,10 +51,16 @@ class CvmSeleniumSpider(scrapy.Spider):
         search_input.clear()
         search_input.send_keys(cnpj)
         search_input.send_keys(Keys.ENTER)
+        
+        try:
+            find_name_to_click = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//a[@id='ddlFundos__ctl1_Linkbutton4']"))
+            )
+        except:
+            find_name_to_click = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//a[@id='ddlFundos__ctl0_lnkbtn1']"))
+            )
 
-        find_name_to_click = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@id='ddlFundos__ctl0_lnkbtn1']"))
-        )
         find_name_to_click.click()
 
         driver.switch_to.default_content()
@@ -83,28 +89,38 @@ class CvmSeleniumSpider(scrapy.Spider):
             EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//frame[@name='Main']"))
         )
 
-        select_data_pesquisa = Select(WebDriverWait(driver, 10).until(
+        dropdown_data_pesquisa = Select(WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//select[@name='ddComptc']"))
         ))
 
-        data_pesquisa_to_iterate = select_data_pesquisa.options
+        dados_diarios_list = []
+        for i, _ in enumerate(dropdown_data_pesquisa.options):
+            driver.switch_to.default_content()
 
-        for data_pesquisa in data_pesquisa_to_iterate:
-            time.sleep(2)
+            WebDriverWait(driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//frame[@name='Main']"))
+            )
+
+            dropdown_data_pesquisa = Select(WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//select[@name='ddComptc']"))
+            ))
+            dropdown_data_pesquisa.select_by_index(i)
+
+            name_selected_dropdown = Select(WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//select[@name='ddComptc']"))
+            ))
+            name_selected_dropdown = name_selected_dropdown.first_selected_option.get_attribute("value")
             
-            is_stale = True
-            while is_stale:
-                is_stale, linhas_tabela = self.find_data_pesquisa(driver, data_pesquisa)
-                
-
-
-            #se não tiver valor na quota (coluna 2), já filtra e retira a linha
+            linhas_tabela = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located((By.XPATH, "//table[@id='dgDocDiario']//tr[position()>1]"))
+            )
             linhas_validas = [linha for linha in linhas_tabela if linha.find_element(By.XPATH, "td[2]").text.strip()] 
-            dados_diarios_list = []
+            
             if linhas_validas:
                 ultima_linha = linhas_validas[-1]
                 dados = ultima_linha.find_elements(By.XPATH, "td")
                 dados_diarios = {
+                    "Mês": name_selected_dropdown,
                     "Dia": dados[0].text.strip(),
                     "Quota": dados[1].text.strip(),
                     #"Captação no Dia": dados[2].text.strip(),
@@ -121,30 +137,3 @@ class CvmSeleniumSpider(scrapy.Spider):
                     #'fundo': response_obj.get(),
                     'dados_diarios': dados_diarios
                 }
-
-    def find_data_pesquisa(self, driver, data_pesquisa):
-        try:
-            # Aguardar mais um pouco antes de continuar, caso a página ainda esteja atualizando
-            time.sleep(2)  # Atraso adicional
-            
-            select_data_pesquisa = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, "//select[@name='ddComptc']"))
-            )
-
-            select_data_pesquisa = Select(select_data_pesquisa)
-            select_data_pesquisa.select_by_value(data_pesquisa.text)
-
-            driver.switch_to.default_content()
-
-            #pesquisa e troca para o frame correto sem precisar declarar uma variável nova no processo
-            WebDriverWait(driver, 10).until(
-                EC.frame_to_be_available_and_switch_to_it((By.XPATH, "//frame[@name='Main']"))
-            )
-
-            #ignora a primeira linha, >1 (pula o primeiro tr)
-            linhas_tabela = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.XPATH, "//table[@id='dgDocDiario']//tr[position()>1]"))
-            )
-        except StaleElementReferenceException:
-            return True, None
-        return False, linhas_tabela
