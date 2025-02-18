@@ -94,9 +94,11 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 DOWNLOAD_TIMEOUT = 30
 
+DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
+
 #SELENIUM
 from shutil import which
 
 SELENIUM_DRIVER_NAME = 'chrome'
 SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
-SELENIUM_DRIVER_ARGUMENTS=['--headless']  # '--headless' if using chrome instead of firefox
+SELENIUM_DRIVER_ARGUMENTS=[]  # '--headless' if using chrome instead of firefox
